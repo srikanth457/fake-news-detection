@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fake News Detector Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* Gradients */
+    .gradient-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .gradient-success {
+      background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+    }
+
+    .gradient-warning {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .gradient-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .gradient-text-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-alt {
+      background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Animations */
+    @keyframes float-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slide-from-left {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3), 0 0 40px rgba(102, 126, 234, 0.1);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(102, 126, 234, 0.5), 0 0 60px rgba(102, 126, 234, 0.2);
+      }
+    }
+
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes counter {
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .animate-float-in {
+      animation: float-in 0.8s ease-out forwards;
+    }
+
+    .animate-slide-from-left {
+      animation: slide-from-left 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+
+    .animate-glow-pulse {
+      animation: glow-pulse 3s ease-in-out infinite;
+    }
+
+    .animate-counter {
+      animation: counter 0.5s ease-out;
+    }
+
+    /* Glass Morphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-dark {
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Cards */
+    .card {
+      border-radius: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-sm {
+      border-radius: 16px;
+    }
+
+    /* Score Bar */
+    .score-bar {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #eab308 66%, #22c55e 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .score-indicator {
+      height: 100%;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Input Styles */
+    input, textarea {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: white;
+      padding: 12px 16px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.5);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Button Styles */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-lg {
+      padding: 16px 32px;
+      font-size: 16px;
+    }
+
+    .btn-icon {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+    }
+
+    /* Flag Badge */
+    .flag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      animation: slide-up 0.5s ease-out backwards;
+    }
+
+    .flag-badge:nth-child(1) { animation-delay: 0.1s; }
+    .flag-badge:nth-child(2) { animation-delay: 0.2s; }
+    .flag-badge:nth-child(3) { animation-delay: 0.3s; }
+    .flag-badge:nth-child(4) { animation-delay: 0.4s; }
+    .flag-badge:nth-child(5) { animation-delay: 0.5s; }
+
+    /* History Item */
+    .history-item {
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .history-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 16px;
+    }
+
+    .history-item:hover::before {
+      opacity: 1;
+    }
+
+    .history-item:hover {
+      transform: translateX(4px);
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Verdict Badge */
+    .verdict-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 20px;
+      animation: float-in 0.6s ease-out;
+    }
+
+    .verdict-badge.credible {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(14, 165, 233, 0.15));
+      border: 2px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .verdict-badge.uncertain {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.15));
+      border: 2px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .verdict-badge.fake {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+      border: 2px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Stat Card */
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    /* Background Pattern */
+    .bg-pattern {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-pattern::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Stagger Animation */
+    .stagger-item {
+      animation: float-in 0.6s ease-out backwards;
+    }
+
+    .stagger-item:nth-child(1) { animation-delay: 0.1s; }
+    .stagger-item:nth-child(2) { animation-delay: 0.2s; }
+    .stagger-item:nth-child(3) { animation-delay: 0.3s; }
+    .stagger-item:nth-child(4) { animation-delay: 0.4s; }
+    .stagger-item:nth-child(5) { animation-delay: 0.5s; }
+    .stagger-item:nth-child(6) { animation-delay: 0.6s; }
+
+    /* Detail Panel */
+    .detail-panel {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+
+    .detail-panel.active {
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    /* Separator */
+    .separator {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-slate-950 text-slate-50 overflow-auto">
+  <div id="app-container" class="h-full w-full bg-pattern"><!-- Navigation Header -->
+   <header class="sticky top-0 z-40 glass-dark border-b border-slate-800/50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-12 gradient-primary flex items-center justify-center">
+       <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /> <path d="M9 12l2 2 4-4" />
+       </svg>
+      </div>
+      <div>
+       <h1 id="app-title" class="text-xl font-bold">Fake News Detector</h1>
+       <p class="text-xs text-slate-400">Intelligence Powered</p>
+      </div>
+     </div>
+     <div class="hidden md:flex items-center gap-4">
+      <div class="text-right">
+       <div id="total-analyzed" class="text-2xl font-bold mono">
+        0
+       </div>
+       <p class="text-xs text-slate-400">Articles Analyzed</p>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="relative">
+    <div class="max-w-7xl mx-auto px-6 py-12"><!-- Hero Section -->
+     <div class="text-center mb-16 stagger-item">
+      <div class="inline-block mb-6"><span class="inline-block px-4 py-2 rounded-full glass text-xs font-semibold text-slate-300 backdrop-blur">✨ Advanced AI Detection System</span>
+      </div>
+      <h1 class="text-5xl md:text-6xl font-bold mb-4 leading-tight"><span class="gradient-text-primary">Detect Misinformation</span><br><span class="text-slate-300">in Real Time</span></h1>
+      <p id="subtitle" class="text-xl text-slate-400 max-w-2xl mx-auto">Harness AI-powered analysis to identify fake news, detect deceptive language patterns, and verify article credibility instantly.</p>
+     </div><!-- Main Grid -->
+     <div class="grid lg:grid-cols-12 gap-8 mb-16"><!-- Left Panel - Input -->
+      <div class="lg:col-span-8 space-y-6"><!-- Analysis Card -->
+       <div class="card glass rounded-3xl p-8">
+        <div class="flex items-center gap-3 mb-6">
+         <div class="w-12 h-12 rounded-14 gradient-primary flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /> <polyline points="14 2 14 8 20 8" />
+          </svg>
+         </div>
+         <div>
+          <h2 class="text-2xl font-bold">Analyze Article</h2>
+          <p class="text-sm text-slate-400">Paste your content for instant verification</p>
+         </div>
+        </div>
+        <form id="analysis-form" class="space-y-6">
+         <div><label class="block text-sm font-semibold text-slate-300 mb-2">📰 Headline</label> <input type="text" id="headline" name="headline" placeholder="Enter the news headline..." class="w-full" required>
+         </div>
+         <div class="grid md:grid-cols-2 gap-6">
+          <div><label class="block text-sm font-semibold text-slate-300 mb-2">🔗 Source</label> <input type="text" id="source" name="source" placeholder="e.g., News Website, Twitter..." class="w-full">
+          </div>
+          <div><label class="block text-sm font-semibold text-slate-300 mb-2">🏷️ Category</label> <select class="w-full" style="background: rgba(255, 255, 255, 0.03); border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px; color: white; padding: 12px 16px; font-size: 14px; cursor: pointer;"> <option>General News</option> <option>Politics</option> <option>Health</option> <option>Science</option> <option>Technology</option> <option>Entertainment</option> </select>
+          </div>
+         </div>
+         <div><label class="block text-sm font-semibold text-slate-300 mb-2">📝 Article Content</label> <textarea id="content" name="content" rows="8" placeholder="Paste the full article text here for comprehensive analysis..." class="w-full resize-none" required></textarea>
+         </div><button type="submit" id="analyze-btn" class="btn btn-primary btn-lg w-full flex items-center justify-center gap-3">
+          <svg class="w-5 h-5" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.35-4.35" />
+          </svg><span id="analyze-btn-text">Analyze Article</span> </button>
+        </form>
+       </div><!-- Results Section -->
+       <div id="results-panel" class="hidden"><!-- Verdict -->
+        <div id="verdict-box" class="card glass rounded-3xl p-8 verdict-badge">
+         <div id="verdict-icon" class="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-8 h-8" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+         </div>
+         <div>
+          <div id="verdict-label" class="text-2xl font-bold"></div>
+          <div id="verdict-desc" class="text-sm text-slate-300 mt-1"></div>
+         </div>
+        </div><!-- Score Section -->
+        <div class="card glass rounded-3xl p-8">
+         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg> Credibility Score</h3>
+         <div class="mb-4">
+          <div class="flex items-end justify-between mb-3"><span class="text-slate-400 text-sm">Trust Level</span> <span id="score-value" class="text-4xl font-bold mono gradient-text-primary">0%</span>
+          </div>
+          <div class="score-bar">
+           <div id="score-indicator" class="score-indicator" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 mt-3"><span>Likely Fake</span> <span>Uncertain</span> <span>Likely Real</span>
+          </div>
+         </div>
+        </div><!-- Flags -->
+        <div class="card glass rounded-3xl p-8">
+         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-red-400" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg> Warning Flags Detected</h3>
+         <div id="flags-container" class="flex flex-wrap gap-2 min-h-10"><span class="text-sm text-slate-400">Analyzing...</span>
+         </div>
+        </div><!-- Detailed Analysis -->
+        <div class="card glass rounded-3xl p-8">
+         <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-400" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /> <polyline points="14 2 14 8 20 8" /> <line x1="16" y1="13" x2="8" y2="13" /> <line x1="16" y1="17" x2="8" y2="17" />
+          </svg> Detailed Analysis</h3>
+         <p id="analysis-text" class="text-slate-300 leading-relaxed"></p>
+        </div>
+       </div>
+      </div><!-- Right Panel - History & Stats -->
+      <div class="lg:col-span-4"><!-- Quick Stats -->
+       <div class="card glass rounded-3xl p-6 mb-6">
+        <h3 class="text-lg font-bold mb-4">📊 Quick Stats</h3>
+        <div class="space-y-3">
+         <div class="stat-card">
+          <div id="avg-score" class="text-3xl font-bold mono gradient-text-primary">
+           0%
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Average Credibility</p>
+         </div>
+         <div class="stat-card">
+          <div id="stat-credible" class="text-3xl font-bold mono text-cyan-400">
+           0
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Credible Articles</p>
+         </div>
+         <div class="stat-card">
+          <div id="stat-fake" class="text-3xl font-bold mono text-red-400">
+           0
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Suspicious Articles</p>
+         </div>
+        </div>
+       </div><!-- History -->
+       <div class="card glass rounded-3xl p-6 sticky top-24">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+         <svg class="w-5 h-5 text-purple-400" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" />
+         </svg> Recent Analyses</h3>
+        <div id="history-container" class="space-y-2 max-h-[500px] overflow-y-auto">
+         <div id="empty-history" class="text-center py-12">
+          <svg class="w-12 h-12 mx-auto mb-3 opacity-30" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          </svg>
+          <p class="text-slate-500 text-sm">No analyses yet</p>
+          <p class="text-slate-600 text-xs mt-1">Submit an article to get started</p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Features Section -->
+     <div class="mb-16">
+      <div class="text-center mb-12">
+       <h2 class="text-4xl font-bold mb-4"><span class="gradient-text-primary">Powerful Detection</span></h2>
+       <p class="text-slate-400 max-w-2xl mx-auto">Advanced algorithms that catch the subtle signs of misinformation</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+       <div class="card glass rounded-2xl p-6 stagger-item">
+        <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+         <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /> <circle cx="12" cy="12" r="3" />
+         </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2">Language Analysis</h3>
+        <p class="text-sm text-slate-400">Detects clickbait, emotional triggers, and sensationalist language patterns</p>
+       </div>
+       <div class="card glass rounded-2xl p-6 stagger-item">
+        <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+         <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+         </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2">Source Verification</h3>
+        <p class="text-sm text-slate-400">Cross-references sources and identifies suspicious origins</p>
+       </div>
+       <div class="card glass rounded-2xl p-6 stagger-item">
+        <div class="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center mb-4">
+         <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 10" /> <line x1="1" y1="1" x2="23" y2="1" /> <path d="M10 5v3m4-3v3m4-3v3" />
+         </svg>
+        </div>
+        <h3 class="text-lg font-bold mb-2">Pattern Recognition</h3>
+        <p class="text-sm text-slate-400">Identifies common misinformation patterns and red flags</p>
+       </div>
+      </div>
+     </div><!-- Warning Footer -->
+     <div class="glass-dark rounded-2xl p-6 border-l-4 border-purple-500 text-center">
+      <p class="text-sm text-slate-300"><strong>⚠️ Disclaimer:</strong> This tool provides automated analysis and should not be the sole basis for determining truth. Always verify information from multiple reputable sources.</p>
+     </div>
+    </div>
+   </main>
+  </div><!-- Loading Modal -->
+  <div id="loading-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+   <div class="absolute inset-0 bg-slate-950/70 backdrop-blur"></div>
+   <div class="relative glass-dark rounded-3xl p-12 text-center max-w-sm mx-4">
+    <div class="spinner mx-auto mb-6"></div>
+    <h3 class="text-xl font-bold mb-2">Analyzing Article</h3>
+    <p class="text-slate-400 text-sm">Running comprehensive checks on your content...</p>
+    <div class="mt-6 flex gap-1 justify-center">
+     <div class="w-2 h-2 rounded-full gradient-primary animate-pulse-soft" style="animation-delay: 0s;"></div>
+     <div class="w-2 h-2 rounded-full gradient-primary animate-pulse-soft" style="animation-delay: 0.2s;"></div>
+     <div class="w-2 h-2 rounded-full gradient-primary animate-pulse-soft" style="animation-delay: 0.4s;"></div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: 'Fake News Detector',
+      subtitle: 'Harness AI-powered analysis to identify fake news, detect deceptive language patterns, and verify article credibility instantly.',
+      analyze_button_text: 'Analyze Article'
+    };
+
+    let analysisHistory = [];
+    let currentRecordCount = 0;
+    let isAnalyzing = false;
+
+    const suspiciousPatterns = {
+      clickbait: ['shocking', 'you won\'t believe', 'amazing', 'incredible', 'unbelievable', 'mind-blowing', 'jaw-dropping', 'secret', 'they don\'t want you to know', 'exposed'],
+      emotional: ['outrage', 'fury', 'devastating', 'horrifying', 'terrifying', 'explosive', 'bombshell', 'slammed', 'destroyed'],
+      uncertainty: ['reportedly', 'allegedly', 'sources say', 'some people say', 'it is said', 'rumor has it'],
+      absolutism: ['always', 'never', 'everyone', 'nobody', 'all', 'none', 'completely', 'totally'],
+      urgency: ['urgent', 'act now', 'limited time', 'before it\'s too late', 'share before', 'must see']
+    };
+
+    function analyzeContent(headline, content, source) {
+      const fullText = `${headline} ${content}`.toLowerCase();
+      const flags = [];
+      let score = 70;
+      
+      Object.entries(suspiciousPatterns).forEach(([category, patterns]) => {
+        patterns.forEach(pattern => {
+          if (fullText.includes(pattern.toLowerCase())) {
+            score -= 5;
+            if (!flags.includes(category)) flags.push(category);
+          }
+        });
+      });
+      
+      const capsRatio = (headline.match(/[A-Z]/g) || []).length / headline.length;
+      if (capsRatio > 0.5 && headline.length > 10) {
+        score -= 10;
+        flags.push('excessive_caps');
+      }
+      
+      const punctuationCount = (headline.match(/[!?]/g) || []).length;
+      if (punctuationCount > 2) {
+        score -= 8;
+        flags.push('excessive_punctuation');
+      }
+      
+      if (content.length < 100) {
+        score -= 10;
+        flags.push('insufficient_content');
+      }
+      
+      if (content.length > 200 && !content.includes('"') && !fullText.includes('according to')) {
+        score -= 5;
+        flags.push('no_sources_cited');
+      }
+      
+      if (source) {
+        const sourceLower = source.toLowerCase();
+        if (sourceLower.includes('facebook') || sourceLower.includes('whatsapp') || sourceLower.includes('twitter') || sourceLower.includes('forward')) {
+          score -= 15;
+          flags.push('social_media_source');
+        }
+      }
+      
+      score = Math.max(0, Math.min(100, score));
+      
+      let result, description;
+      if (score >= 70) {
+        result = 'likely_credible';
+        description = 'This content appears to follow credible journalism standards and best practices.';
+      } else if (score >= 40) {
+        result = 'uncertain';
+        description = 'This content has warning signs. We recommend verifying with additional reputable sources.';
+      } else {
+        result = 'likely_fake';
+        description = 'This content shows multiple signs of misinformation. Exercise extreme caution before sharing.';
+      }
+      
+      const analysisDetails = generateAnalysisDetails(flags, score);
+      
+      return { score, result, description, flags, analysis: analysisDetails };
+    }
+
+    function generateAnalysisDetails(flags, score) {
+      const details = [];
+      if (flags.includes('clickbait')) details.push('Contains clickbait language designed to provoke reactions.');
+      if (flags.includes('emotional')) details.push('Uses highly emotional or sensationalist language patterns.');
+      if (flags.includes('uncertainty')) details.push('Contains vague attributions without specific sources cited.');
+      if (flags.includes('absolutism')) details.push('Makes absolute claims without nuance or supporting evidence.');
+      if (flags.includes('urgency')) details.push('Creates artificial urgency to pressure immediate sharing.');
+      if (flags.includes('excessive_caps')) details.push('Headline uses excessive capitalization for emphasis.');
+      if (flags.includes('excessive_punctuation')) details.push('Contains excessive exclamation marks or question marks.');
+      if (flags.includes('insufficient_content')) details.push('Article content is unusually short for credible journalism.');
+      if (flags.includes('no_sources_cited')) details.push('No direct quotes or proper source attributions found.');
+      if (flags.includes('social_media_source')) details.push('Content originated from social media and needs verification.');
+      if (details.length === 0) details.push('No significant warning signs detected. Content appears credible.');
+      return details.join(' ');
+    }
+
+    function getFlagLabel(flag) {
+      const labels = {
+        clickbait: '🎣 Clickbait',
+        emotional: '😱 Emotional',
+        uncertainty: '❓ Vague Sources',
+        absolutism: '⚡ Absolute Claims',
+        urgency: '⏰ False Urgency',
+        excessive_caps: '🔊 ALL CAPS',
+        excessive_punctuation: '❗ Excessive Marks',
+        insufficient_content: '📄 Short Content',
+        no_sources_cited: '📝 No Sources',
+        social_media_source: '📱 Social Media'
+      };
+      return labels[flag] || flag;
+    }
+
+    function displayResults(analysis) {
+      const resultsPanel = document.getElementById('results-panel');
+      resultsPanel.classList.remove('hidden');
+      resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Score animation
+      let currentScore = 0;
+      const scoreValue = document.getElementById('score-value');
+      const scoreIndicator = document.getElementById('score-indicator');
+      const interval = setInterval(() => {
+        if (currentScore >= analysis.score) {
+          clearInterval(interval);
+        } else {
+          currentScore++;
+          scoreValue.textContent = `${currentScore}%`;
+          scoreIndicator.style.width = `${currentScore}%`;
+        }
+      }, 15);
+      
+      // Verdict styling
+      const verdictBox = document.getElementById('verdict-box');
+      const verdictIcon = document.getElementById('verdict-icon');
+      const verdictLabel = document.getElementById('verdict-label');
+      const verdictDesc = document.getElementById('verdict-desc');
+      
+      verdictBox.classList.remove('credible', 'uncertain', 'fake');
+      
+      if (analysis.result === 'likely_credible') {
+        verdictBox.classList.add('credible');
+        verdictIcon.innerHTML = '<svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+        verdictLabel.textContent = '✓ Likely Credible';
+        verdictLabel.className = 'text-2xl font-bold text-cyan-400';
+      } else if (analysis.result === 'uncertain') {
+        verdictBox.classList.add('uncertain');
+        verdictIcon.innerHTML = '<svg class="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+        verdictLabel.textContent = '⚠ Uncertain';
+        verdictLabel.className = 'text-2xl font-bold text-amber-400';
+      } else {
+        verdictBox.classList.add('fake');
+        verdictIcon.innerHTML = '<svg class="w-8 h-8 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        verdictLabel.textContent = '✕ Likely Fake';
+        verdictLabel.className = 'text-2xl font-bold text-red-400';
+      }
+      
+      verdictDesc.textContent = analysis.description;
+      
+      // Flags
+      const flagsContainer = document.getElementById('flags-container');
+      flagsContainer.innerHTML = '';
+      if (analysis.flags.length === 0) {
+        flagsContainer.innerHTML = '<span class="text-sm text-cyan-400 font-medium">✓ No warning signs detected</span>';
+      } else {
+        analysis.flags.forEach(flag => {
+          const badge = document.createElement('span');
+          badge.className = 'flag-badge bg-red-500/20 text-red-300 border border-red-500/30';
+          badge.textContent = getFlagLabel(flag);
+          flagsContainer.appendChild(badge);
+        });
+      }
+      
+      document.getElementById('analysis-text').textContent = analysis.analysis;
+    }
+
+    function renderHistory(data) {
+      const container = document.getElementById('history-container');
+      const emptyState = document.getElementById('empty-history');
+      
+      if (data.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      // Stats
+      document.getElementById('total-analyzed').textContent = data.length;
+      const avgScore = Math.round(data.reduce((sum, item) => sum + (item.credibility_score || 0), 0) / data.length);
+      document.getElementById('avg-score').textContent = `${avgScore}%`;
+      
+      const credible = data.filter(d => d.credibility_score >= 70).length;
+      const fake = data.filter(d => d.credibility_score < 40).length;
+      document.getElementById('stat-credible').textContent = credible;
+      document.getElementById('stat-fake').textContent = fake;
+      
+      const existingItems = new Map(
+        [...container.querySelectorAll('.history-item')].map(el => [el.dataset.id, el])
+      );
+      
+      const sortedData = [...data].sort((a, b) => new Date(b.analyzed_at) - new Date(a.analyzed_at));
+      
+      sortedData.forEach((item, index) => {
+        if (existingItems.has(item.__backendId)) {
+          updateHistoryItem(existingItems.get(item.__backendId), item);
+          existingItems.delete(item.__backendId);
+        } else {
+          const el = createHistoryItem(item);
+          if (index === 0) {
+            container.insertBefore(el, container.firstChild);
+          } else {
+            const prevItem = sortedData[index - 1];
+            const prevEl = container.querySelector(`[data-id="${prevItem.__backendId}"]`);
+            if (prevEl && prevEl.nextSibling) {
+              container.insertBefore(el, prevEl.nextSibling);
+            } else {
+              container.appendChild(el);
+            }
+          }
+        }
+      });
+      
+      existingItems.forEach(el => el.remove());
+    }
+
+    function createHistoryItem(item) {
+      const el = document.createElement('div');
+      el.className = 'history-item glass-dark rounded-lg p-3';
+      el.dataset.id = item.__backendId;
+      updateHistoryItem(el, item);
+      
+      el.addEventListener('click', () => {
+        document.getElementById('headline').value = item.headline || '';
+        document.getElementById('source').value = item.source || '';
+        document.getElementById('content').value = item.content || '';
+        displayResults({
+          score: item.credibility_score,
+          result: item.analysis_result,
+          description: getResultDescription(item.analysis_result),
+          flags: item.flags ? item.flags.split(',').filter(f => f) : [],
+          analysis: generateAnalysisDetails(item.flags ? item.flags.split(',').filter(f => f) : [], item.credibility_score)
+        });
+      });
+      
+      return el;
+    }
+
+    function updateHistoryItem(el, item) {
+      const scoreClass = item.credibility_score >= 70 ? 'text-cyan-400' : 
+                        item.credibility_score >= 40 ? 'text-amber-400' : 'text-red-400';
+      const bgClass = item.credibility_score >= 70 ? 'bg-cyan-500/20' : 
+                     item.credibility_score >= 40 ? 'bg-amber-500/20' : 'bg-red-500/20';
+      
+      el.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 ${bgClass} rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="${scoreClass} text-xs font-bold mono">${item.credibility_score}%</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate text-slate-200">${item.headline || 'Untitled'}</p>
+            <p class="text-xs text-slate-500">${formatDate(item.analyzed_at)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function getResultDescription(result) {
+      const descriptions = {
+        'likely_credible': 'This content appears to follow credible journalism standards.',
+        'uncertain': 'This content has warning signs. Verify with additional sources.',
+        'likely_fake': 'This content shows multiple signs of misinformation.'
+      };
+      return descriptions[result] || '';
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+      return date.toLocaleDateString();
+    }
+
+    function showLoading(show) {
+      const modal = document.getElementById('loading-modal');
+      const btn = document.getElementById('analyze-btn');
+      if (show) {
+        modal.classList.remove('hidden');
+        btn.disabled = true;
+      } else {
+        modal.classList.add('hidden');
+        btn.disabled = false;
+      }
+    }
+
+    const dataHandler = {
+      onDataChanged(data) {
+        analysisHistory = data;
+        currentRecordCount = data.length;
+        renderHistory(data);
+      }
+    };
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      if (isAnalyzing) return;
+      isAnalyzing = true;
+      
+      const headline = document.getElementById('headline').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const source = document.getElementById('source').value.trim();
+      
+      if (!headline || !content) {
+        isAnalyzing = false;
+        return;
+      }
+      
+      showLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      const analysis = analyzeContent(headline, content, source);
+      
+      if (currentRecordCount >= 999) {
+        showLoading(false);
+        isAnalyzing = false;
+        displayResults(analysis);
+        return;
+      }
+      
+      const record = {
+        id: Date.now().toString(),
+        headline,
+        content: content.substring(0, 500),
+        source: source || 'Unknown',
+        credibility_score: analysis.score,
+        analysis_result: analysis.result,
+        flags: analysis.flags.join(','),
+        analyzed_at: new Date().toISOString()
+      };
+      
+      const result = await window.dataSdk.create(record);
+      showLoading(false);
+      isAnalyzing = false;
+      displayResults(analysis);
+    }
+
+    async function onConfigChange(config) {
+      document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+      document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+      document.getElementById('analyze-btn-text').textContent = config.analyze_button_text || defaultConfig.analyze_button_text;
+    }
+
+    async function init() {
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: () => ({
+            recolorables: [],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['app_title', config.app_title || defaultConfig.app_title],
+            ['subtitle', config.subtitle || defaultConfig.subtitle],
+            ['analyze_button_text', config.analyze_button_text || defaultConfig.analyze_button_text]
+          ])
+        });
+      }
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) console.error('Failed to initialize Data SDK');
+      }
+      
+      document.getElementById('analysis-form').addEventListener('submit', handleSubmit);
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cc2e932067685ab',t:'MTc3MDgwMzEwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
